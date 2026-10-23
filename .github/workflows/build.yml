@@ -1,0 +1,32 @@
+name: Build PoC
+
+on:
+  workflow_dispatch: # Allows you to trigger the build manually from the Actions tab[reference:1]
+  push:
+    branches: [ "main" ] # Optional: also builds on every push to the main branch
+
+jobs:
+  build:
+    runs-on: windows-latest # Uses a Windows runner with Visual Studio pre-installed[reference:2]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive # Ensures any Git submodules are also fetched[reference:3]
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3 # Adds MSBuild to the PATH
+
+    - name: Build Solution
+      run: msbuild MSI_FeatureManager_CVE.sln /p:Configuration=Release
+      # Note: Replace "MSI_FeatureManager_CVE.sln" if your solution file has a different name[reference:6]
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MSI-PoC-Build
+        path: |
+          x64/Release/*.exe
+          # You can add more paths here, for example: x64/Release/*.dll
+          # The exact path depends on your project's output directory[reference:7]
